@@ -40,7 +40,7 @@
 		<div class="pattern"></div>
 		<Dialog.Header>
 			<Dialog.Title class="flex items-center p-4 px-6 text-white font-bold relative text-xl gap-4">
-				<Badge size="medium" code={getPlayerBadge(player?.team)} />
+				<Badge class="w-12 h-12" code={getPlayerBadge(player?.team)} />
 				<span>
 					<p class="text-start">
 						{player?.first_name}
@@ -55,7 +55,7 @@
 		<Dialog.Description
 			class="flex gap-4 items-end text-white relative z-10 px-4 md:px-8 justify-between"
 		>
-			<Photo class="w-40" code={playerCode} />
+			<Photo class="w-32 md:w-40" code={playerCode} />
 			<PlayerStats {playerCode} />
 		</Dialog.Description>
 	</Dialog.Content>

@@ -6,3 +6,5 @@ export const playerData = writable<Player[]>([]);
 export const teamData = writable<Team[]>([]);
 
 export const fixtureData = writable<Fixture[]>([]);
+
+export const gameWeek = writable<number>(3);

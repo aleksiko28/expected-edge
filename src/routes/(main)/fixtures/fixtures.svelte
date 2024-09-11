@@ -57,38 +57,36 @@
 	let currentGameWeek = 3;
 </script>
 
-<div class="flex flex-col items-center">
-	<div class="flex gap-8 items-center justify-between w-[500px]">
+<div class="flex flex-col items-center py-6">
+	<div class="flex gap-16 items-center justify-between">
 		<Button size="sm" disabled={currentGameWeek === 1} on:click={() => (currentGameWeek -= 1)}>
 			<ChevronLeft class="mr-1" size="16" />
-			Previous
 		</Button>
-		<span>
-			<h2 class="text-3xl">Fixtures</h2>
-			<h3 class="text-xl">Gameweek {currentGameWeek}</h3>
-		</span>
+		<h3 class="text-xl">Gameweek {currentGameWeek}</h3>
 		<Button size="sm" disabled={currentGameWeek === 38} on:click={() => (currentGameWeek += 1)}>
-			Next
 			<ChevronRight class="ml-1" size="16" />
 		</Button>
 	</div>
-	<ul class="flex flex-col gap-3 mt-8">
-		{#each currentData as item}
+	<ul class="flex flex-col gap-4 md:gap-6 mt-8 py-4">
+		{#each currentData as item, index}
 			<li class="grid grid-cols-7 justify-between">
-				<span class="flex gap-6 items-center col-span-3 justify-end">
-					<h4 class="text-xl">
+				<span class="flex gap-4 md:gap-6 items-center col-span-3 justify-end">
+					<h4 class="text-md md:text-xl">
 						{item.homeTeam}
 					</h4>
-					<Badge size="small" code={item.homeTeamCode}></Badge>
+					<Badge class="w-8 h-8 md:w-12 md:h-12" code={item.homeTeamCode}></Badge>
 				</span>
 				<span class="text-sm place-self-center">VS</span>
 				<span class="flex gap-6 items-center col-span-3 justify-start">
-					<Badge size="small" code={item.awayTeamCode}></Badge>
-					<h4 class="text-xl">
+					<Badge class="w-8 h-8 md:w-12 md:h-12" code={item.awayTeamCode}></Badge>
+					<h4 class="text-md md:text-xl">
 						{item.awayTeam}
 					</h4>
 				</span>
 			</li>
+			{#if index !== currentData.length - 1}
+				<hr />
+			{/if}
 		{/each}
 	</ul>
 </div>

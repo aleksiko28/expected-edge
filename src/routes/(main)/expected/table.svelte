@@ -1,17 +1,28 @@
 <script lang="ts">
-	import { readable } from 'svelte/store';
-	import { createTable, Subscribe, Render } from 'svelte-headless-table';
+	import { readable, writable } from 'svelte/store';
+	import { createTable, Subscribe, Render, createRender } from 'svelte-headless-table';
 	import type { Player } from '$lib/types';
 	import * as Table from '$lib/components/ui/table';
-	import { addPagination, addSortBy, addTableFilter } from 'svelte-headless-table/plugins';
+	import {
+		addColumnFilters,
+		addPagination,
+		addSortBy,
+		addTableFilter
+	} from 'svelte-headless-table/plugins';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { Input } from '@/components/ui/input';
-	import { Info } from 'lucide-svelte';
+	import { ArrowDown10, ArrowUp01, Clock, Info } from 'lucide-svelte';
 	import * as Tooltip from '@/components/ui/tooltip';
 	import * as Pagination from '$lib/components/ui/pagination/index.js';
 	import ChevronLeft from 'lucide-svelte/icons/chevron-left';
 	import ChevronRight from 'lucide-svelte/icons/chevron-right';
 	import PlayerDialog from '@/components/player-dialog.svelte';
+	import Slider from '@/components/ui/slider/slider.svelte';
+	import { gameWeek } from '@/stores';
+	import * as Popover from '$lib/components/ui/popover/index.js';
+	import { Button } from '$lib/components/ui/button/index.js';
+	import Label from '@/components/ui/label/label.svelte';
+	import NumberRangeFilter from './NumberRangeFilter.svelte';
 
 	let playerDialog: PlayerDialog;
 
@@ -26,8 +37,19 @@
 
 	const tableData = readable(sortedByPoints);
 
+	const filterMinutesPlayed = (range: number[], value: number) => {
+		const min = range[0] === null ? 0 : range[0];
+		const max = range[1] === null ? 270 : range[1];
+		if (min <= max) {
+			return value >= min && value <= max;
+		}
+		return true;
+	};
+
 	const table = createTable(tableData, {
-		page: addPagination(),
+		page: addPagination({
+			initialPageSize: 11
+		}),
 		sort: addSortBy(),
 		filter: addTableFilter({
 			fn: ({ filterValue, value }) => {
@@ -35,7 +57,8 @@
 				const normalizedValue = removeAccents(value).toLowerCase();
 				return normalizedValue.toLowerCase().includes(normalizedQuery.toLowerCase());
 			}
-		})
+		}),
+		colFilter: addColumnFilters()
 	});
 
 	const columns = table.createColumns([
@@ -89,6 +112,18 @@
 			header: 'xVAPM',
 			accessor: 'xvapm',
 			cell: ({ value }) => value.toFixed(2)
+		}),
+		table.column({
+			header: 'Minutes',
+			accessor: 'minutes',
+			plugins: {
+				colFilter: {
+					initialFilterValue: [0, 270],
+					fn: ({ filterValue, value }) => filterMinutesPlayed(filterValue, value),
+					render: ({ filterValue, values }) =>
+						createRender(NumberRangeFilter, { filterValue, values })
+				}
+			}
 		})
 	]);
 
@@ -134,119 +169,125 @@
 	let activePlayerCode = '194010';
 </script>
 
-<div class="rounded-md">
-	<div class="flex items-center gap-4">
-		<Input class="max-w-sm" placeholder="Filter players..." type="text" bind:value={$filterValue} />
-		<Select.Root bind:this={positionSelect} portal={null}>
-			<Select.Trigger class="w-[180px]">
-				<Select.Value placeholder="Select a position" />
-			</Select.Trigger>
-			<Select.Content>
-				<Select.Group>
-					<Select.Label>Position</Select.Label>
-					{#each positions as position}
-						<Select.Item value={position.value} label={position.label}>{position.label}</Select.Item
-						>
-					{/each}
-				</Select.Group>
-			</Select.Content>
-			<Select.Input name="favoriteFruit" />
-		</Select.Root>
-	</div>
-
-	<Table.Root class="mt-3" {...$tableAttrs}>
-		<Table.Header>
-			{#each $headerRows as headerRow}
-				<Subscribe rowAttrs={headerRow.attrs()}>
-					<Table.Row>
-						{#each headerRow.cells as cell (cell.id)}
-							<Subscribe let:props attrs={cell.attrs()} let:attrs props={cell.props()}>
-								<Table.Head {...attrs}>
-									<button
-										class="w-full text-left flex items-center gap-2"
-										on:click={props.sort.toggle}
-									>
-										<Render of={cell.render()} />
-										{#if cell.id === 'vapm'}
-											<Tooltip.Root>
-												<Tooltip.Trigger>
-													<Info class="w-4 h-4" />
-												</Tooltip.Trigger>
-												<Tooltip.Content>
-													<p class="max-w-[30ch] text-center">
-														Value Added Per Million: A player's points per game divided by their
-														price in millions.
-													</p>
-												</Tooltip.Content>
-											</Tooltip.Root>
-										{/if}
-									</button>
-								</Table.Head>
-							</Subscribe>
-						{/each}
-					</Table.Row>
-				</Subscribe>
-			{/each}
-		</Table.Header>
-		<Table.Body {...$tableBodyAttrs}>
-			{#each $pageRows as row (row.id)}
-				<Subscribe rowAttrs={row.attrs()} let:rowAttrs>
-					<Table.Row
-						class="hover:cursor-pointer"
-						on:click={() => openPlayerDialog(row)}
-						{...rowAttrs}
-					>
-						{#each row.cells as cell (cell.id)}
-							<Subscribe attrs={cell.attrs()} let:attrs>
-								{#if cell.column.id === 'web_name'}
-									<Table.Cell {...attrs}>
-										<p class="font-medium">
-											<Render of={cell.render()} />
-										</p>
-									</Table.Cell>
-								{:else}
-									<Table.Cell {...attrs}>
-										<Render of={cell.render()} />
-									</Table.Cell>
-								{/if}
-							</Subscribe>
-						{/each}
-					</Table.Row>
-				</Subscribe>
-			{/each}
-		</Table.Body>
-	</Table.Root>
-	<div class="flex items-center justify-end space-x-4 py-4">
-		<Pagination.Root onPageChange={pageChange} {count} {perPage} {siblingCount} let:pages>
-			<Pagination.Content>
-				<Pagination.Item>
-					<Pagination.PrevButton>
-						<ChevronLeft class="h-4 w-4" />
-						<span class="hidden sm:block">Previous</span>
-					</Pagination.PrevButton>
-				</Pagination.Item>
-				{#each pages as page (page.key)}
-					{#if page.type === 'ellipsis'}
-						<Pagination.Item>
-							<Pagination.Ellipsis />
-						</Pagination.Item>
-					{:else}
-						<Pagination.Item>
-							<Pagination.Link {page} isActive={$pageIndex + 1 === page.value}>
-								{page.value}
-							</Pagination.Link>
-						</Pagination.Item>
-					{/if}
+<div class="flex items-center gap-4">
+	<Input class="max-w-sm" placeholder="Filter players..." type="text" bind:value={$filterValue} />
+	<Select.Root bind:this={positionSelect} portal={null}>
+		<Select.Trigger class="w-[180px]">
+			<Select.Value placeholder="Select a position" />
+		</Select.Trigger>
+		<Select.Content>
+			<Select.Group>
+				<Select.Label>Position</Select.Label>
+				{#each positions as position}
+					<Select.Item value={position.value} label={position.label}>{position.label}</Select.Item>
 				{/each}
-				<Pagination.Item>
-					<Pagination.NextButton>
-						<span class="hidden sm:block">Next</span>
-						<ChevronRight class="h-4 w-4" />
-					</Pagination.NextButton>
-				</Pagination.Item>
-			</Pagination.Content>
-		</Pagination.Root>
-	</div>
+			</Select.Group>
+		</Select.Content>
+		<Select.Input name="favoriteFruit" />
+	</Select.Root>
+</div>
+
+<Table.Root class="mt-3" {...$tableAttrs}>
+	<Table.Header>
+		{#each $headerRows as headerRow}
+			<Subscribe rowAttrs={headerRow.attrs()}>
+				<Table.Row>
+					{#each headerRow.cells as cell (cell.id)}
+						<Subscribe let:props attrs={cell.attrs()} let:attrs props={cell.props()}>
+							<Table.Head {...attrs}>
+								<button
+									class="w-full text-left flex items-center gap-2"
+									on:click={props.sort.toggle}
+								>
+									{#if props.colFilter?.render !== undefined}
+										<Render of={props.colFilter.render} />
+									{:else}
+										<Render of={cell.render()} />
+									{/if}
+									{#if props.sort.order === 'asc'}
+										<ArrowUp01 class="w-4 h-4" />
+									{:else if props.sort.order === 'desc'}
+										<ArrowDown10 class="w-4 h-4" />
+									{/if}
+									{#if cell.id === 'vapm'}
+										<Tooltip.Root>
+											<Tooltip.Trigger>
+												<Info class="w-4 h-4" />
+											</Tooltip.Trigger>
+											<Tooltip.Content>
+												<p class="max-w-[30ch] text-center">
+													Value Added Per Million: A player's points per game divided by their price
+													in millions.
+												</p>
+											</Tooltip.Content>
+										</Tooltip.Root>
+									{/if}
+								</button>
+							</Table.Head>
+						</Subscribe>
+					{/each}
+				</Table.Row>
+			</Subscribe>
+		{/each}
+	</Table.Header>
+	<Table.Body {...$tableBodyAttrs}>
+		{#each $pageRows as row (row.id)}
+			<Subscribe rowAttrs={row.attrs()} let:rowAttrs>
+				<Table.Row
+					class="hover:cursor-pointer"
+					on:click={() => openPlayerDialog(row)}
+					{...rowAttrs}
+				>
+					{#each row.cells as cell (cell.id)}
+						<Subscribe attrs={cell.attrs()} let:attrs>
+							{#if cell.column.id === 'web_name'}
+								<Table.Cell {...attrs}>
+									<p class="font-medium">
+										<Render of={cell.render()} />
+									</p>
+								</Table.Cell>
+							{:else}
+								<Table.Cell {...attrs}>
+									<Render of={cell.render()} />
+								</Table.Cell>
+							{/if}
+						</Subscribe>
+					{/each}
+				</Table.Row>
+			</Subscribe>
+		{/each}
+	</Table.Body>
+</Table.Root>
+<div class="flex items-center justify-end space-x-4 py-4">
+	<Pagination.Root onPageChange={pageChange} {count} {perPage} {siblingCount} let:pages>
+		<Pagination.Content>
+			<Pagination.Item>
+				<Pagination.PrevButton>
+					<ChevronLeft class="h-4 w-4" />
+					<span class="hidden sm:block">Previous</span>
+				</Pagination.PrevButton>
+			</Pagination.Item>
+			{#each pages as page (page.key)}
+				{#if page.type === 'ellipsis'}
+					<Pagination.Item>
+						<Pagination.Ellipsis />
+					</Pagination.Item>
+				{:else}
+					<Pagination.Item>
+						<Pagination.Link {page} isActive={$pageIndex + 1 === page.value}>
+							{page.value}
+						</Pagination.Link>
+					</Pagination.Item>
+				{/if}
+			{/each}
+			<Pagination.Item>
+				<Pagination.NextButton>
+					<span class="hidden sm:block">Next</span>
+					<ChevronRight class="h-4 w-4" />
+				</Pagination.NextButton>
+			</Pagination.Item>
+		</Pagination.Content>
+	</Pagination.Root>
 </div>
 
 <PlayerDialog playerCode={activePlayerCode} bind:this={playerDialog} />

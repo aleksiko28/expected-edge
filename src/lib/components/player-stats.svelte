@@ -65,7 +65,7 @@
 						? 'hidden md:flex'
 						: 'col-span-1'}"
 				>
-					<Badge size="small" code={getPlayerBadge(fixture.team_h, fixture.team_a)} />
+					<Badge class="w-10 h-10" code={getPlayerBadge(fixture.team_h, fixture.team_a)} />
 					<span>{fixture.team_h === data.team ? '(H)' : '(A)'}</span>
 					<Fdr difficulty={getOpponentStrength(fixture.team_h, fixture.team_a) ?? 1000} />
 				</div>

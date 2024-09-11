@@ -32,12 +32,22 @@
 			console.error('Error fetching player data:', error);
 		}
 	});
+
+	const title = 'Expected stats';
+	const description = 'Expected stats for all players in the Premier League.';
 </script>
+
+<svelte:head>
+	<title>{title}</title>
+	<meta name="description" content={description} />
+</svelte:head>
 
 {#if data}
 	<!-- Render the player data here -->
-	<h1 class="text-2xl my-4">Player expected data</h1>
-	<Table {data} />
+	<div class="flex flex-col container mx-auto">
+		<h1 class="text-2xl my-4">Player expected data</h1>
+		<Table {data} />
+	</div>
 {:else}
 	<h1 class="text-2xl my-4">Player expected data</h1>
 	<div class="flex flex-col gap-4 mt-8">
