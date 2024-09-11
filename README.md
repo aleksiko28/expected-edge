@@ -1,40 +1,15 @@
-# create-svelte
+# Expected Edge
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+Your source for analysis of underlying Fantasy Premier League data. Find points projections, fixtures analysis and blog posts about FPL here.
 
-## Creating a project
+## Dependencies
 
-If you're seeing this, you've probably already done this step. Congrats!
+The main project dependencies include:
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+- [SvelteKit](https://kit.svelte.dev/)
+- [Shadcn Svelte](https://www.shadcn-svelte.com/) for components
+- [Svelte Headless Table](https://svelte-headless-table.bryanmylee.com/) for data tables
 
-# create a new project in my-app
-npm create svelte@latest my-app
-```
+## Information sources
 
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
-
-# x-edge
+So far all data is sourced from the official FPL API.

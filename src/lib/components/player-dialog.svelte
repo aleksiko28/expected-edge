@@ -55,7 +55,7 @@
 				<span class="h-full w-px bg-muted mx-2"></span>
 				<span class="flex flex-col gap-1">
 					<p class="text-base font-light">
-						{positions[player?.element_type - 1 ?? 0]}
+						{positions[player?.element_type ?? 1 - 1]}
 					</p>
 					<p class="border bg-background px-2">
 						£{(player?.now_cost ?? 0) / 10}m
