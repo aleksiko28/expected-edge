@@ -32,6 +32,8 @@
 		const teamCode = $teamData.find((team) => team.id === teamId);
 		return teamCode?.code ?? 1;
 	}
+
+	const positions = ['Goalkeepers', 'Defender', 'Midfielder', 'Forward'];
 </script>
 
 <Dialog.Root bind:open={dialogOpen}>
@@ -48,6 +50,15 @@
 					</p>
 					<p class="text-lg text-muted-foreground font-medium text-start">
 						{player?.team_name}
+					</p>
+				</span>
+				<span class="h-full w-px bg-muted mx-2"></span>
+				<span class="flex flex-col gap-1">
+					<p class="text-base font-light">
+						{positions[player?.element_type - 1 ?? 0]}
+					</p>
+					<p class="border bg-background px-2">
+						£{(player?.now_cost ?? 0) / 10}m
 					</p>
 				</span>
 			</Dialog.Title>
