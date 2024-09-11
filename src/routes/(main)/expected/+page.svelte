@@ -1,5 +1,5 @@
 <script>
-  import Expected from "./expected.svelte"
+	import Expected from './expected.svelte';
 </script>
 
 <Expected></Expected>

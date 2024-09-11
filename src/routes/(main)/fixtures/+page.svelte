@@ -1,5 +1,5 @@
 <script>
-  import Fixtures from "./fixtures.svelte"
+	import Fixtures from './fixtures.svelte';
 </script>
 
 <Fixtures></Fixtures>
