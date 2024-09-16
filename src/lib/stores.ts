@@ -7,4 +7,4 @@ export const teamData = writable<Team[]>([]);
 
 export const fixtureData = writable<Fixture[]>([]);
 
-export const gameWeek = writable<number>(3);
+export const gameWeek = writable<number>(4);
