@@ -39,7 +39,7 @@
 
 	const filterMinutesPlayed = (range: number[], value: number) => {
 		const min = range[0] === null ? 0 : range[0];
-		const max = range[1] === null ? 270 : range[1];
+		const max = range[1] === null ? $gameWeek * 90 : range[1];
 		if (min <= max) {
 			return value >= min && value <= max;
 		}
@@ -118,7 +118,7 @@
 			accessor: 'minutes',
 			plugins: {
 				colFilter: {
-					initialFilterValue: [0, 270],
+					initialFilterValue: [0, $gameWeek * 90],
 					fn: ({ filterValue, value }) => filterMinutesPlayed(filterValue, value),
 					render: ({ filterValue, values }) =>
 						createRender(NumberRangeFilter, { filterValue, values })
